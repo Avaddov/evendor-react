@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from "react";
 import VendorCard from "./VendorCard";
-import styled from "styled-components";
-
-// Styled components for VendorListContainer and Loader
-const VendorListContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, minmax(300px, 1fr));
-  gap: 20px;
-  grid-auto-rows: 2fr;
-`;
-
-const Loader = styled.div`
-  text-align: center;
-  margin: 20px;
-`;
+import VendorListContainer from "./VendorListContainer";
+import Loader from "./Loader";
 
 const VendorList = () => {
-  // State for vendors, loading status, and page number
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
@@ -27,7 +14,10 @@ const VendorList = () => {
   const [minRating, setMinRating] = useState(0);
   const [maxRating, setMaxRating] = useState(5);
 
-  // Function to fetch vendors from the API
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+
   const fetchVendors = async () => {
     if (!reachedEnd) {
       setLoading(true);
@@ -49,31 +39,22 @@ const VendorList = () => {
         if (maxRating !== 5) {
           url += `&maxRating=${maxRating}`;
         }
-
-        console.log("Fetch URL:", url); // Log the fetch URL
-
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
         const data = await response.json();
-
-        console.log("Fetched Data:", data); // Log the fetched data
-
-        // Ensure data is an array
         if (!Array.isArray(data)) {
           console.error("Vendors data is not an array:", data);
-          setReachedEnd(true); // Set reachedEnd to true to stop fetching more data
+          setReachedEnd(true);
           setLoading(false);
           return;
         }
-
         if (data.length === 0) {
-          setReachedEnd(true); // If no more vendors to load, set reachedEnd to true
+          setReachedEnd(true);
         } else {
-          setVendors(data); // Update vendors state with fetched data (replace existing data)
-          setPageNumber(pageNumber + 1); // Increment page number by 1
+          setVendors([...vendors, ...data]);
+          setPageNumber(pageNumber + 1);
         }
         setLoading(false);
       } catch (error) {
@@ -83,31 +64,26 @@ const VendorList = () => {
     }
   };
 
-  // useEffect to fetch vendors on initial render
-  useEffect(() => {
-    fetchVendors();
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+  };
 
-    // Cleanup function to prevent memory leaks
-    return () => {
-      document.removeEventListener("scroll", handleScroll);
-    };
-  }, []); // Empty dependency array to run once on mount
-  useEffect(
-    () => fetchVendors(),
-    [selectedCategory, minPrice, maxPrice, minRating, maxRating]
-  );
-  // useEffect for infinite scrolling
-  useEffect(() => {
-    // Add event listener for scroll
-    document.addEventListener("scroll", handleScroll, { passive: true });
+  const handleMinPriceChange = (event) => {
+    setMinPrice(Number(event.target.value));
+  };
 
-    // Cleanup function to remove event listener
-    return () => {
-      document.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]); // Include handleScroll in the dependency array
+  const handleMaxPriceChange = (event) => {
+    setMaxPrice(Number(event.target.value));
+  };
 
-  // Function to handle scroll event
+  const handleMinRatingChange = (event) => {
+    setMinRating(Number(event.target.value));
+  };
+
+  const handleMaxRatingChange = (event) => {
+    setMaxRating(Number(event.target.value));
+  };
+
   const handleScroll = () => {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
@@ -115,40 +91,21 @@ const VendorList = () => {
       !loading &&
       !reachedEnd
     ) {
-      fetchVendors(); // Fetch more vendors if scroll reaches the bottom
+      fetchVendors();
     }
   };
 
-  // Function to handle category change
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
-  };
-
-  // Function to handle min price change
-  const handleMinPriceChange = (event) => {
-    setMinPrice(Number(event.target.value));
-  };
-
-  // Function to handle max price change
-  const handleMaxPriceChange = (event) => {
-    setMaxPrice(Number(event.target.value));
-  };
-
-  // Function to handle min rating change
-  const handleMinRatingChange = (event) => {
-    setMinRating(Number(event.target.value));
-  };
-
-  // Function to handle max rating change
-  const handleMaxRatingChange = (event) => {
-    setMaxRating(Number(event.target.value));
-  };
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
 
   return (
     <div>
       <div>
         <h2>Available Vendors</h2>
-        {/* Filter controls */}
         <div>
           <label htmlFor="category">Category:</label>
           <select id="category" onChange={handleCategoryChange}>
@@ -192,11 +149,7 @@ const VendorList = () => {
             <VendorCard key={vendor.id} vendor={vendor} />
           ))}
         </VendorListContainer>
-        {!reachedEnd && (
-          <Loader style={{ visibility: loading ? "visible" : "hidden" }}>
-            Loading...
-          </Loader>
-        )}
+        <Loader loading={loading} />
       </div>
     </div>
   );
