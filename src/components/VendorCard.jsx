@@ -8,24 +8,30 @@ import Card from 'react-bootstrap/Card';
 
 
 //Bootstrap card with vendor details fetching data from SQL
+
+// VendorCard component renders a Bootstrap card with vendor details fetched from SQL
 const VendorCard = ({ vendor }) => {
   return (
+    // Render Bootstrap Card component with vendor details
     <Card style={{ width: '20rem' }}>
+      {/* Render vendor image */}
       <Card.Img variant="top" src={vendor.image_url} height="280px"/>
       <Card.Body>
+        {/* Render vendor name, type, price, and rating */}
         <Card.Title>{vendor.vendor_name}</Card.Title>
         <Card.Text>
-        <p>{vendor.vendor_type}</p>
-        <p> ${vendor.vendor_price}</p>
-        <p> {vendor.vendor_rating} ★</p>
+          <p>{vendor.vendor_type}</p>
+          <p> ${vendor.vendor_price}</p>
+          <p> {vendor.vendor_rating} ★</p>
         </Card.Text>
+        {/* Button to book the vendor */}
         <Button variant="primary">Book Vendor</Button>
       </Card.Body>
     </Card>
   );
 }
 
-export default VendorCard;
+export default VendorCard; 
 
 ///FAKER VERSION
 

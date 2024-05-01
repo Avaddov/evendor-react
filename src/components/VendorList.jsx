@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
-import VendorCard from "./VendorCard";
-import VendorListContainer from "./VendorListContainer";
-import Loader from "./Loader";
+import InfiniteScroll from "./InfiniteScroll"; // Importing InfiniteScroll component for infinite scrolling functionality
+import Filters from "./Filter"; // Importing Filters component for filtering options
+import VendorCard from "./VendorCard"; // Importing VendorCard component to render vendor details
 
+// VendorList component to display a list of vendors
 const VendorList = () => {
+  // State variables to manage vendors data, loading state, page number, and end of data flag
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
   const [reachedEnd, setReachedEnd] = useState(false);
+  // State variables for filtering options: selected category, min and max price, min and max rating
   const [selectedCategory, setSelectedCategory] = useState("");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
   const [minRating, setMinRating] = useState(0);
   const [maxRating, setMaxRating] = useState(5);
 
-  useEffect(() => {
-    fetchVendors();
-  }, []);
-
+  // Function to fetch vendors data from the server
   const fetchVendors = async () => {
     if (!reachedEnd) {
       setLoading(true);
@@ -64,6 +64,18 @@ const VendorList = () => {
     }
   };
 
+  // useEffect hook to fetch vendors data when the component mounts
+  useEffect(() => {
+    fetchVendors();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Function to fetch more vendors data when scrolling
+  const loadMoreVendors = () => {
+    fetchVendors();
+  };
+
+  // Event handlers for changes in category, min price, max price, min rating, and max rating
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
   };
@@ -84,75 +96,32 @@ const VendorList = () => {
     setMaxRating(Number(event.target.value));
   };
 
-  const handleScroll = () => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight &&
-      !loading &&
-      !reachedEnd
-    ) {
-      fetchVendors();
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
-
+  // Render the component with filters and list of vendors using InfiniteScroll component
   return (
     <div>
-      <div>
-        <h2>Available Vendors</h2>
-        <div>
-          <label htmlFor="category">Category:</label>
-          <select id="category" onChange={handleCategoryChange}>
-            <option value="All">All</option>
-            <option value="Photographer">Photographer</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Musician">Musician</option>
-            <option value="Catering">Catering</option>
-          </select>
-          <label htmlFor="minPrice">Min Price:</label>
-          <input
-            type="number"
-            id="minPrice"
-            value={minPrice}
-            onChange={handleMinPriceChange}
-          />
-          <label htmlFor="maxPrice">Max Price:</label>
-          <input
-            type="number"
-            id="maxPrice"
-            value={maxPrice}
-            onChange={handleMaxPriceChange}
-          />
-          <label htmlFor="minRating">Min Rating:</label>
-          <input
-            type="number"
-            id="minRating"
-            value={minRating}
-            onChange={handleMinRatingChange}
-          />
-          <label htmlFor="maxRating">Max Rating:</label>
-          <input
-            type="number"
-            id="maxRating"
-            value={maxRating}
-            onChange={handleMaxRatingChange}
-          />
-        </div>
-        <VendorListContainer>
-          {vendors.map((vendor) => (
-            <VendorCard key={vendor.id} vendor={vendor} />
-          ))}
-        </VendorListContainer>
-        <Loader loading={loading} />
-      </div>
+      <h2>Available Vendors</h2>
+      {/* Render Filters component with event handlers and filter state variables */}
+      <Filters
+        handleCategoryChange={handleCategoryChange}
+        handleMinPriceChange={handleMinPriceChange}
+        handleMaxPriceChange={handleMaxPriceChange}
+        handleMinRatingChange={handleMinRatingChange}
+        handleMaxRatingChange={handleMaxRatingChange}
+        selectedCategory={selectedCategory}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        minRating={minRating}
+        maxRating={maxRating}
+      />
+      {/* Render InfiniteScroll component to load more vendors */}
+      <InfiniteScroll loadMore={loadMoreVendors} hasMore={!reachedEnd}>
+        {/* Map through vendors data and render VendorCard for each vendor */}
+        {vendors.map((vendor) => (
+          <VendorCard key={vendor.id} vendor={vendor} />
+        ))}
+      </InfiniteScroll>
     </div>
   );
 };
 
-export default VendorList;
+export default VendorList; // Export VendorList component
