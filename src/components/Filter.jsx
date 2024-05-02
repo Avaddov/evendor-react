@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // Filters component to manage filtering options
-const Filters = ({ onSearch }) => {
+const Filters = (props) => {
   // State variables for selected category, minimum and maximum price, minimum and maximum rating
   const [selectedCategory, setSelectedCategory] = useState("");
   const [minPrice, setMinPrice] = useState(0);
@@ -33,7 +33,7 @@ const Filters = ({ onSearch }) => {
   // Function to handle search action
   const handleSearch = () => {
     // Call the onSearch function passed from parent component with filter inputs
-    onSearch({
+    props.handleCategoryChange({
       category: selectedCategory,
       minPrice: minPrice,
       maxPrice: maxPrice,

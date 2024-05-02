@@ -1,14 +1,9 @@
 import React, { useEffect } from "react";
-import VendorCard from "./VendorCard";
 import VendorListContainer from "./VendorListContainer";
 import Loader from "./Loader";
 
-// InfiniteScroll component takes three props:
-// - loadMore: a function to load more data when the user reaches the bottom of the page
-// - hasMore: a boolean indicating whether there is more data to load
-// - children: child elements to be rendered within the component
 const InfiniteScroll = ({ loadMore, hasMore, children }) => {
-  // Function to handle scrolling events
+  // Function to handle scroll events
   const handleScroll = () => {
     // Check if the user has scrolled to the bottom of the page and there is more data to load
     if (
@@ -21,13 +16,14 @@ const InfiniteScroll = ({ loadMore, hasMore, children }) => {
     }
   };
 
-  // useEffect hook to add and remove event listener for scroll events
   useEffect(() => {
+    // Add event listener for scroll events when the component mounts
     window.addEventListener("scroll", handleScroll);
+    // Remove event listener when the component unmounts
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [handleScroll]); // Dependencies array ensures that the event listener is added/removed only when handleScroll changes
+  }, []); // Empty dependency array ensures that the event listener is added/removed only once
 
   // Render the component with child elements and a Loader component
   return (
